@@ -5,15 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Phone, MapPin, Clock, AlertTriangle } from 'lucide-react';
 import { Tourist, RiskZone } from '@/types/tourist';
 import { useTouristSimulation } from '@/hooks/useTouristSimulation';
-import SOSAlert from './SOSAlert';
-import PoliceControls from './PoliceControls';
+import VerticalSOSAlert from './VerticalSOSAlert';
+import CompactPoliceControls from './CompactPoliceControls';
+import SOPWorkflow from './SOPWorkflow';
 import riskZonesData from '@/data/riskZones.json';
 
 // Import Leaflet CSS
 import 'leaflet/dist/leaflet.css';
 
-// Prayagraj center coordinates
-const PRAYAGRAJ_CENTER = [25.4358, 81.8463] as const;
+// Northeast India center coordinates (Guwahati)
+const NORTHEAST_CENTER = [26.1445, 91.7362] as const;
 
 // Audio context for SOS alerts
 let audioContext: AudioContext | null = null;
@@ -63,7 +64,7 @@ const PoliceDashboard: React.FC = () => {
   useEffect(() => {
     if (!mapRef.current || leafletMapRef.current) return;
 
-    const map = L.map(mapRef.current).setView(PRAYAGRAJ_CENTER, 14);
+    const map = L.map(mapRef.current).setView(NORTHEAST_CENTER, 14);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
@@ -197,8 +198,8 @@ const PoliceDashboard: React.FC = () => {
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
-      {/* SOS Alert System */}
-      <SOSAlert 
+      {/* Vertical SOS Alert System */}
+      <VerticalSOSAlert 
         alerts={alerts}
         onAcknowledge={acknowledgeAlert}
         onPlaySound={playSOSAlert}
@@ -211,38 +212,45 @@ const PoliceDashboard: React.FC = () => {
         style={{ zIndex: 1 }}
       />
 
-      {/* Police Control Panel */}
-      <PoliceControls
+      {/* Compact Police Control Panel */}
+      <CompactPoliceControls
         selectedTourist={selectedTourist}
         totalTourists={tourists.length}
         sosCount={sosCount}
         outlierCount={outlierCount}
       />
 
+      {/* SOP Workflow */}
+      <SOPWorkflow
+        activeAlerts={alerts.filter(alert => !alert.acknowledged)}
+        tourists={tourists}
+        onAcknowledge={acknowledgeAlert}
+      />
+
       {/* Status Bar */}
-      <div className="absolute bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t p-4 z-[1000]">
+      <div className="absolute bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t p-3 z-[1000]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="text-sm">
               <span className="font-mono text-primary">POLICE COMMAND CENTER</span>
-              <span className="ml-4 text-muted-foreground">Prayagraj Tourist Monitoring System</span>
+              <span className="ml-4 text-muted-foreground">Northeast India Tourist Monitoring System</span>
             </div>
           </div>
           
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-success rounded-full"></div>
-              <span>Safe: {tourists.length - sosCount - outlierCount}</span>
+              <div className="w-2 h-2 bg-success rounded-full"></div>
+              <span className="text-xs">Safe: {tourists.length - sosCount - outlierCount}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-warning rounded-full"></div>
-              <span>Outliers: {outlierCount}</span>
+              <div className="w-2 h-2 bg-warning rounded-full"></div>
+              <span className="text-xs">Outliers: {outlierCount}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-emergency rounded-full animate-pulse"></div>
-              <span>SOS: {sosCount}</span>
+              <div className="w-2 h-2 bg-emergency rounded-full animate-pulse"></div>
+              <span className="text-xs">SOS: {sosCount}</span>
             </div>
-            <div className="text-muted-foreground font-mono">
+            <div className="text-muted-foreground font-mono text-xs">
               {new Date().toLocaleTimeString()}
             </div>
           </div>

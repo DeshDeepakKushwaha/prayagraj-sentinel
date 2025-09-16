@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Tourist, AlertEvent } from '@/types/tourist';
 
-// Prayagraj bounds (approximate)
-const PRAYAGRAJ_BOUNDS = {
-  north: 25.4500,
-  south: 25.4200,
-  east: 81.8600,
-  west: 81.8300
+// Northeast India bounds (approximate)
+const NORTHEAST_INDIA_BOUNDS = {
+  north: 26.2000,
+  south: 26.1000,
+  east: 91.8000,
+  west: 91.7000
 };
 
 const TOURIST_NAMES = [
@@ -23,8 +23,8 @@ const TOURIST_NAMES = [
 ];
 
 const generateRandomLocation = () => ({
-  lat: PRAYAGRAJ_BOUNDS.south + Math.random() * (PRAYAGRAJ_BOUNDS.north - PRAYAGRAJ_BOUNDS.south),
-  lng: PRAYAGRAJ_BOUNDS.west + Math.random() * (PRAYAGRAJ_BOUNDS.east - PRAYAGRAJ_BOUNDS.west)
+  lat: NORTHEAST_INDIA_BOUNDS.south + Math.random() * (NORTHEAST_INDIA_BOUNDS.north - NORTHEAST_INDIA_BOUNDS.south),
+  lng: NORTHEAST_INDIA_BOUNDS.west + Math.random() * (NORTHEAST_INDIA_BOUNDS.east - NORTHEAST_INDIA_BOUNDS.west)
 });
 
 const generatePhoneNumber = () => {
@@ -53,11 +53,11 @@ export const useTouristSimulation = (initialCount: number = 50) => {
 
   const moveRandomly = useCallback((tourist: Tourist): Tourist => {
     const maxMovement = 0.0005; // Small movement per update
-    const newLat = Math.max(PRAYAGRAJ_BOUNDS.south, 
-      Math.min(PRAYAGRAJ_BOUNDS.north, 
+    const newLat = Math.max(NORTHEAST_INDIA_BOUNDS.south, 
+      Math.min(NORTHEAST_INDIA_BOUNDS.north, 
         tourist.location.lat + (Math.random() - 0.5) * maxMovement));
-    const newLng = Math.max(PRAYAGRAJ_BOUNDS.west,
-      Math.min(PRAYAGRAJ_BOUNDS.east,
+    const newLng = Math.max(NORTHEAST_INDIA_BOUNDS.west,
+      Math.min(NORTHEAST_INDIA_BOUNDS.east,
         tourist.location.lng + (Math.random() - 0.5) * maxMovement));
 
     return {
