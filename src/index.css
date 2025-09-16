@@ -108,55 +108,54 @@ All colors MUST be HSL.
   }
 }
 
-  /* Command Center Specific Styles */
-  .emergency-pulse {
-    animation: emergency-pulse 1s ease-in-out infinite alternate;
-  }
+/* Command Center Specific Styles */
+.emergency-pulse {
+  animation: emergency-pulse 1s ease-in-out infinite alternate;
+}
 
-  .alert-flash {
-    animation: alert-flash 1s ease-in-out infinite;
-  }
+.alert-flash {
+  animation: alert-flash 1s ease-in-out infinite;
+}
 
-  @keyframes emergency-pulse {
-    from {
-      background-color: hsl(var(--emergency));
-      transform: scale(1);
-    }
-    to {
-      background-color: hsl(var(--emergency) / 0.7);
-      transform: scale(1.1);
-    }
+@keyframes emergency-pulse {
+  from {
+    background-color: hsl(var(--emergency));
+    transform: scale(1);
   }
+  to {
+    background-color: hsl(var(--emergency) / 0.7);
+    transform: scale(1.1);
+  }
+}
 
-  @keyframes alert-flash {
-    0%, 50% {
-      background-color: hsl(var(--emergency));
-    }
-    51%, 100% {
-      background-color: hsl(var(--emergency) / 0.3);
-    }
+@keyframes alert-flash {
+  0%, 50% {
+    background-color: hsl(var(--emergency));
   }
+  51%, 100% {
+    background-color: hsl(var(--emergency) / 0.3);
+  }
+}
 
-  /* Leaflet Override Styles */
-  .leaflet-container {
-    background: hsl(var(--background));
-  }
+/* Leaflet Override Styles */
+.leaflet-container {
+  background: hsl(var(--background));
+}
 
-  .leaflet-control-container .leaflet-control {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
-  }
+.leaflet-control-container .leaflet-control {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
 
-  .leaflet-popup-content-wrapper {
-    background: hsl(var(--card));
-    color: hsl(var(--foreground));
-    border-radius: calc(var(--radius) + 2px);
-  }
+.leaflet-popup-content-wrapper {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border-radius: calc(var(--radius) + 2px);
+}
 
-  .leaflet-popup-tip {
-    background: hsl(var(--card));
-  }
+.leaflet-popup-tip {
+  background: hsl(var(--card));
 }
 
 @layer base {
