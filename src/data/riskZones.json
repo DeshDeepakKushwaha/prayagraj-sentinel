@@ -1,0 +1,40 @@
+{
+  "riskZones": [
+    {
+      "id": "zone-1",
+      "name": "Old City Market Area",
+      "coordinates": [
+        [25.4358, 81.8463],
+        [25.4368, 81.8463],
+        [25.4368, 81.8473],
+        [25.4358, 81.8473]
+      ],
+      "riskLevel": "HIGH",
+      "description": "Crowded market area with high theft incidents"
+    },
+    {
+      "id": "zone-2", 
+      "name": "Riverside Ghats",
+      "coordinates": [
+        [25.4320, 81.8420],
+        [25.4330, 81.8420],
+        [25.4330, 81.8430],
+        [25.4320, 81.8430]
+      ],
+      "riskLevel": "MEDIUM",
+      "description": "Slippery steps during monsoon, overcrowding during festivals"
+    },
+    {
+      "id": "zone-3",
+      "name": "Construction Zone",
+      "coordinates": [
+        [25.4400, 81.8500],
+        [25.4410, 81.8500],
+        [25.4410, 81.8510],
+        [25.4400, 81.8510]
+      ],
+      "riskLevel": "HIGH",
+      "description": "Active construction site with safety hazards"
+    }
+  ]
+}
