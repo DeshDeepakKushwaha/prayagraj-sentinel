@@ -17,7 +17,7 @@ interface WorkflowStep {
   title: string;
   description: string;
   icon: React.ReactNode;
-  timeLimit: number; // in seconds
+  timeLimit: number;
   completed: boolean;
   action?: () => void;
 }
@@ -25,8 +25,8 @@ interface WorkflowStep {
 const SOPWorkflow: React.FC<SOPWorkflowProps> = ({ activeAlerts, tourists, onAcknowledge }) => {
   const [activeWorkflows, setActiveWorkflows] = useState<{ [alertId: string]: WorkflowStep[] }>({});
   const [timers, setTimers] = useState<{ [alertId: string]: number }>({});
+  const [minimized, setMinimized] = useState(false);
 
-  // Initialize workflow when new SOS alert comes in
   useEffect(() => {
     activeAlerts.forEach(alert => {
       if (!activeWorkflows[alert.id] && alert.type === 'SOS') {
@@ -38,104 +38,36 @@ const SOPWorkflow: React.FC<SOPWorkflowProps> = ({ activeAlerts, tourists, onAck
 
   const initializeWorkflow = (alert: AlertEvent, tourist?: Tourist) => {
     const workflow: WorkflowStep[] = [
-      {
-        id: 'log-data',
-        title: 'Log Critical Data',
-        description: 'Capture tourist ID, GPS, timestamp, battery level',
-        icon: <FileText className="h-4 w-4" />,
-        timeLimit: 5,
-        completed: false,
-        action: () => completeStep(alert.id, 'log-data')
-      },
-      {
-        id: 'trigger-alarms',
-        title: 'Trigger Dashboard Alarms',
-        description: 'Activate audible & visual alerts',
-        icon: <Siren className="h-4 w-4" />,
-        timeLimit: 10,
-        completed: false,
-        action: () => completeStep(alert.id, 'trigger-alarms')
-      },
-      {
-        id: 'display-context',
-        title: 'Display Contextual Intelligence',
-        description: 'Show tourist profile, travel history, risk zone data',
-        icon: <Eye className="h-4 w-4" />,
-        timeLimit: 10,
-        completed: false,
-        action: () => completeStep(alert.id, 'display-context')
-      },
-      {
-        id: 'notify-contacts',
-        title: 'Automated Notifications',
-        description: 'SMS to emergency contacts, alert field units',
-        icon: <Radio className="h-4 w-4" />,
-        timeLimit: 15,
-        completed: false,
-        action: () => completeStep(alert.id, 'notify-contacts')
-      },
-      {
-        id: 'acknowledge-alert',
-        title: 'Operator Acknowledgment',
-        description: 'Human operator must acknowledge within Golden Hour',
-        icon: <CheckCircle className="h-4 w-4" />,
-        timeLimit: 120, // 2 minutes
-        completed: false,
-        action: () => {
-          completeStep(alert.id, 'acknowledge-alert');
-          onAcknowledge(alert.id);
-        }
-      },
-      {
-        id: 'assess-situation',
-        title: 'Situation Assessment',
-        description: 'Analyze location, movement, available resources',
-        icon: <MapPin className="h-4 w-4" />,
-        timeLimit: 30,
-        completed: false,
-        action: () => completeStep(alert.id, 'assess-situation')
-      },
-      {
-        id: 'direct-contact',
-        title: 'Attempt Direct Contact',
-        description: 'Call tourist mobile number and log outcome',
-        icon: <Phone className="h-4 w-4" />,
-        timeLimit: 60,
-        completed: false,
-        action: () => completeStep(alert.id, 'direct-contact')
-      },
-      {
-        id: 'dispatch-units',
-        title: 'Dispatch Resources',
-        description: 'Send appropriate field units based on assessment',
-        icon: <Users className="h-4 w-4" />,
-        timeLimit: 180, // 3 minutes
-        completed: false,
-        action: () => completeStep(alert.id, 'dispatch-units')
-      }
+      { id: 'log-data', title: 'Log Critical Data', description: 'Capture tourist ID, GPS, timestamp, battery level', icon: <FileText className="h-4 w-4" />, timeLimit: 5, completed: false, action: () => completeStep(alert.id, 'log-data') },
+      { id: 'trigger-alarms', title: 'Trigger Dashboard Alarms', description: 'Activate audible & visual alerts', icon: <Siren className="h-4 w-4" />, timeLimit: 10, completed: false, action: () => completeStep(alert.id, 'trigger-alarms') },
+      { id: 'display-context', title: 'Display Contextual Intelligence', description: 'Show tourist profile, travel history, risk zone data', icon: <Eye className="h-4 w-4" />, timeLimit: 10, completed: false, action: () => completeStep(alert.id, 'display-context') },
+      { id: 'notify-contacts', title: 'Automated Notifications', description: 'SMS to emergency contacts, alert field units', icon: <Radio className="h-4 w-4" />, timeLimit: 15, completed: false, action: () => completeStep(alert.id, 'notify-contacts') },
+      { id: 'acknowledge-alert', title: 'Operator Acknowledgment', description: 'Human operator must acknowledge within Golden Hour', icon: <CheckCircle className="h-4 w-4" />, timeLimit: 120, completed: false, action: () => { completeStep(alert.id, 'acknowledge-alert'); onAcknowledge(alert.id); } },
+      { id: 'assess-situation', title: 'Situation Assessment', description: 'Analyze location, movement, available resources', icon: <MapPin className="h-4 w-4" />, timeLimit: 30, completed: false, action: () => completeStep(alert.id, 'assess-situation') },
+      { id: 'direct-contact', title: 'Attempt Direct Contact', description: 'Call tourist mobile number and log outcome', icon: <Phone className="h-4 w-4" />, timeLimit: 60, completed: false, action: () => completeStep(alert.id, 'direct-contact') },
+      { id: 'dispatch-units', title: 'Dispatch Resources', description: 'Send appropriate field units based on assessment', icon: <Users className="h-4 w-4" />, timeLimit: 180, completed: false, action: () => completeStep(alert.id, 'dispatch-units') }
     ];
 
     setActiveWorkflows(prev => ({ ...prev, [alert.id]: workflow }));
     setTimers(prev => ({ ...prev, [alert.id]: 0 }));
 
-    // Start timer
     const timer = setInterval(() => {
       setTimers(prev => ({ ...prev, [alert.id]: (prev[alert.id] || 0) + 1 }));
     }, 1000);
 
-    // Auto-complete some automated steps
+    // Auto-complete automated steps
     setTimeout(() => completeStep(alert.id, 'log-data'), 2000);
     setTimeout(() => completeStep(alert.id, 'trigger-alarms'), 3000);
     setTimeout(() => completeStep(alert.id, 'display-context'), 4000);
     setTimeout(() => completeStep(alert.id, 'notify-contacts'), 6000);
+
+    return () => clearInterval(timer);
   };
 
   const completeStep = (alertId: string, stepId: string) => {
     setActiveWorkflows(prev => ({
       ...prev,
-      [alertId]: prev[alertId]?.map(step => 
-        step.id === stepId ? { ...step, completed: true } : step
-      ) || []
+      [alertId]: prev[alertId]?.map(step => step.id === stepId ? { ...step, completed: true } : step) || []
     }));
   };
 
@@ -158,7 +90,7 @@ const SOPWorkflow: React.FC<SOPWorkflowProps> = ({ activeAlerts, tourists, onAck
   if (Object.keys(activeWorkflows).length === 0) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 z-[1100] w-96 max-h-96 overflow-y-auto">
+    <div className="fixed z-[1100]">
       {Object.entries(activeWorkflows).map(([alertId, workflow]) => {
         const alert = activeAlerts.find(a => a.id === alertId);
         const tourist = tourists.find(t => t.id === alert?.touristId);
@@ -167,77 +99,102 @@ const SOPWorkflow: React.FC<SOPWorkflowProps> = ({ activeAlerts, tourists, onAck
         const progress = (completedSteps / workflow.length) * 100;
 
         return (
-          <Card key={alertId} className="mb-4 bg-card/95 backdrop-blur-sm">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-emergency" />
-                  SOP Workflow
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-3 w-3" />
-                  <span className="text-xs font-mono">
-                    {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">
-                  Tourist: {tourist?.name} ({alert?.touristId})
-                </div>
-                <Progress value={progress} className="h-2" />
-                <div className="text-xs text-muted-foreground">
-                  {completedSteps}/{workflow.length} steps completed
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="p-3 pt-0">
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {workflow.map((step, index) => {
-                  const status = getStepStatus(step, elapsedTime);
-                  const isActive = index === 0 || workflow[index - 1]?.completed;
-                  
-                  return (
-                    <div key={step.id} className={`flex items-center gap-3 p-2 rounded-md transition-colors ${
-                      step.completed ? 'bg-success/10' : 
-                      status === 'overdue' ? 'bg-emergency/10' :
-                      status === 'warning' ? 'bg-warning/10' : 
-                      isActive ? 'bg-primary/10' : 'bg-muted/30'
-                    }`}>
-                      <div className={`flex-shrink-0 ${getStatusColor(status)}`}>
-                        {step.completed ? <CheckCircle className="h-4 w-4" /> : step.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium">{step.title}</div>
-                        <div className="text-xs text-muted-foreground">{step.description}</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {status !== 'completed' && (
-                          <Badge variant={
-                            status === 'overdue' ? 'destructive' :
-                            status === 'warning' ? 'secondary' : 'outline'
-                          } className="text-xs">
-                            {step.timeLimit}s
-                          </Badge>
-                        )}
-                        {step.action && isActive && !step.completed && (
-                          <Button
-                            size="sm"
-                            variant={status === 'overdue' ? 'destructive' : 'default'}
-                            onClick={step.action}
-                            className="text-xs px-2 h-6"
-                          >
-                            {step.id === 'acknowledge-alert' ? 'ACK' : 'Done'}
-                          </Button>
-                        )}
-                      </div>
+          <div key={alertId} className={`fixed left-4 bottom-12 z-[1100] transition-all duration-300 ${minimized ? "w-12" : "w-72"}`}>
+            <Card className="bg-card/95 backdrop-blur-sm relative">
+              <CardHeader className="pb-2 flex justify-between items-center">
+                {!minimized && (
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-emergency" />
+                    <CardTitle className="text-sm">SOP Workflow</CardTitle>
+                  </div>
+                )}
+                <Button
+                  className="w-8 h-8 rounded-full bg-red-600 text-black flex items-center justify-center text-sm"
+                  onClick={() => setMinimized(!minimized)}
+                >
+                  {minimized ? ">" : "<"}
+                </Button>
+              </CardHeader>
+
+              {!minimized && (
+                <>
+                  <div className="space-y-1 px-2 pb-1">
+                    <div className="text-xs text-muted-foreground">
+                      Tourist: {tourist?.name} ({alert?.touristId})
                     </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+                    <Progress value={progress} className="h-2" />
+                    <div className="text-xs text-muted-foreground">
+                      {completedSteps}/{workflow.length} steps completed
+                    </div>
+                    <div className="flex items-center gap-1 text-xs font-mono">
+                      <Clock className="h-3 w-3" />
+                      {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, "0")}
+                    </div>
+                  </div>
+
+                  <CardContent className="p-2 pt-0">
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      {workflow.map((step, index) => {
+                        const status = getStepStatus(step, elapsedTime);
+                        const isActive = index === 0 || workflow[index - 1]?.completed;
+
+                        return (
+                          <div
+                            key={step.id}
+                            className={`flex items-center gap-2 p-1 rounded-md transition-colors ${
+                              step.completed
+                                ? "bg-success/10"
+                                : status === "overdue"
+                                ? "bg-emergency/10"
+                                : status === "warning"
+                                ? "bg-warning/10"
+                                : isActive
+                                ? "bg-primary/10"
+                                : "bg-muted/30"
+                            }`}
+                          >
+                            <div className={`flex-shrink-0 ${getStatusColor(status)}`}>
+                              {step.completed ? <CheckCircle className="h-4 w-4" /> : step.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium">{step.title}</div>
+                              <div className="text-xs text-muted-foreground">{step.description}</div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {status !== "completed" && (
+                                <Badge
+                                  variant={
+                                    status === "overdue"
+                                      ? "destructive"
+                                      : status === "warning"
+                                      ? "secondary"
+                                      : "outline"
+                                  }
+                                  className="text-xs"
+                                >
+                                  {step.timeLimit}s
+                                </Badge>
+                              )}
+                              {step.action && isActive && !step.completed && (
+                                <Button
+                                  size="sm"
+                                  variant={status === "overdue" ? "destructive" : "default"}
+                                  onClick={step.action}
+                                  className="text-xs px-1 h-5"
+                                >
+                                  {step.id === "acknowledge-alert" ? "ACK" : "Done"}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </>
+              )}
+            </Card>
+          </div>
         );
       })}
     </div>
